@@ -68,7 +68,7 @@ class LLMAtHandler(BaseEventHandler):
 
 
 class PostAtHandler(BaseEventHandler):
-    event_type = EventType.POST_SEND
+    event_type = EventType.POST_SEND_PRE_PROCESS
     handler_name = "post_at_handler"
     handler_description = "将llm输出的at格式转换为消息段"
     weight = 100
@@ -128,7 +128,6 @@ class PostAtHandler(BaseEventHandler):
             if i.type == "text":
                 continue
             message_seg.append(i)
-        message.modify_plain_text(message.plain_text)
         message.modify_message_segments(message_seg, True)
         return True, True, None, None, message
 
