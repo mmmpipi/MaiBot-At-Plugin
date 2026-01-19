@@ -57,9 +57,9 @@ class LLMAtHandler(BaseEventHandler):
             already_add.append(user_id)
 
         at_prompt = """
-你可以使用<at:user_id>的形式在消息中插入at
+你可以使用[@:user_id]的形式在消息中插入at
 例如：
-<at:12132344>你怎么还不起床
+[@:12132323]
 直接输出标签，不要使用 Markdown 链接或 @昵称
 以下是昵称和user_id的映射表:\n"""
         for i in user_id_map:
@@ -79,14 +79,14 @@ class PostAtHandler(BaseEventHandler):
 
     @staticmethod
     def get_at_and_replace_to_empty(message: str) -> Tuple[List[str], List[str]]:
-        pattern = r"(<at:\d+>)"
+        pattern = r"(\[@:\d+\])"
         parts = re.split(pattern, message)
         text_parts = []
         user_ids = []
         for part in parts:
-            if part.startswith("<at:") and part.endswith(">"):
+            if part.startswith("[@:") and part.endswith("]"):
                 # 提取 user_id
-                user_id = part[4:-1]  # 去掉 <at: 和 >
+                user_id = part[3:-1]  # 去掉 <at: 和 >
                 user_ids.append(user_id)
             else:
                 text_parts.append(part)
@@ -126,9 +126,12 @@ class PostAtHandler(BaseEventHandler):
             index += 1
             text = texts[index]
             if text:
-                message_seg.append(Seg(type="text", data=text))
+                message_seg.append(Seg(type="text", data=" " + text))
         for i in message.message_segments:
             if i.type == "text":
+                continue
+            if i.type == "reply":
+                message_seg.insert(0, i)
                 continue
             message_seg.append(i)
         message.modify_message_segments(message_seg, True)
