@@ -6,6 +6,7 @@ from maim_message import Seg
 
 from src.chat.utils.chat_message_builder import get_raw_msg_before_timestamp_with_chat
 from src.chat.utils.utils import is_bot_self
+from src.person_info.person_info import Person, get_person_id_by_person_name
 from src.plugin_system import (
     BasePlugin,
     ComponentInfo,
@@ -14,7 +15,8 @@ from src.plugin_system import (
     get_logger,
 )
 from src.plugin_system.base.base_events_handler import BaseEventHandler
-from src.plugin_system.base.component_types import CustomEventHandlerResult, EventType, MaiMessages
+from src.plugin_system.base.base_tool import BaseTool
+from src.plugin_system.base.component_types import CustomEventHandlerResult, EventType, MaiMessages, ToolParamType
 from src.config.config import global_config
 
 
@@ -24,7 +26,7 @@ logger = get_logger("at_tool")
 class LLMAtHandler(BaseEventHandler):
     event_type = EventType.POST_LLM
     handler_name = "llm_at_handler"
-    handler_description = "为llm注入at提示词"
+    handler_description = "为llm注入使用at的格式"
     weight = 100
     intercept_message = True
 
@@ -43,6 +45,7 @@ class LLMAtHandler(BaseEventHandler):
         )
         user_id_map = []
         already_add = []
+        logger.info(f"注入历史{len(message_list_before_short)}条消息的id")
         for i in message_list_before_short:
             user_id = i.user_info.user_id
             user_name = i.user_info.user_nickname
@@ -132,6 +135,27 @@ class PostAtHandler(BaseEventHandler):
         return True, True, None, None, message
 
 
+class GetMemberInfoByNameTool(BaseTool):
+    name = "get_member_info_by_name"
+    description = "获取群成员信息"
+    parameters = [
+        ("name", ToolParamType.STRING, "要查找的群成员名称", True, None),
+    ]
+    available_for_llm = True
+
+    async def execute(self, function_args):
+        name = function_args.get("name", "")
+        person_id = get_person_id_by_person_name(name)
+        if not person_id:
+            logger.warn(f"未找到id为{name}的用户")
+            return {"content": "未找到用户"}
+        person = Person(person_id=person_id)
+        person.load_from_database()
+        if not person.user_id:
+            return {"content": "未找到用户"}
+        return {"content": f"用户{name}的id为{person.user_id}"}
+
+
 @register_plugin
 class AtPlugin(BasePlugin):
     plugin_name: str = "at_plugin"
@@ -160,4 +184,5 @@ class AtPlugin(BasePlugin):
         return [
             (LLMAtHandler.get_handler_info(), LLMAtHandler),
             (PostAtHandler.get_handler_info(), PostAtHandler),
+            (GetMemberInfoByNameTool.get_tool_info(), GetMemberInfoByNameTool),
         ]

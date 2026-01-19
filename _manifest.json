@@ -25,7 +25,24 @@
   "locales_path": "_locales",
   "plugin_info": {
     "is_built_in": false,
-    "plugin_type": "communication"
+    "plugin_type": "communication",
+    "components": [
+      {
+        "type": "event_handler",
+        "name": "post_at_handler",
+        "description": "将llm输出的at格式转换为消息段"
+      },
+      {
+        "type": "event_handler",
+        "name": "llm_at_handler",
+        "description": "为llm注入使用at的格式"
+      },
+      {
+        "type": "tool",
+        "name": "get_member_info_by_name",
+        "description": "获取群成员信息"
+      }
+    ]
   },
   "id": "mmmpipi.MaiBot-At-Plugin"
 }
