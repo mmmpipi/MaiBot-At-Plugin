@@ -57,11 +57,11 @@ class LLMAtHandler(BaseEventHandler):
             already_add.append(user_id)
 
         at_prompt = """
-你可以使用[@:user_id]的形式在消息中插入at
+你可以使用[@id]的形式在消息中插入at
 例如：
-[@:12132323]
+[@12132323]
 直接输出标签，不要使用 Markdown 链接或 @昵称
-以下是昵称和user_id的映射表:\n"""
+以下是昵称和id的映射表:\n"""
         for i in user_id_map:
             at_prompt += f"{i[0]}:{i[1]}\n"
         at_prompt += "\n你*可以*在提及某个人时使用at来强调\n"
@@ -79,14 +79,14 @@ class PostAtHandler(BaseEventHandler):
 
     @staticmethod
     def get_at_and_replace_to_empty(message: str) -> Tuple[List[str], List[str]]:
-        pattern = r"(\[@:\d+\])"
+        pattern = r"(\[@\d+\])"
         parts = re.split(pattern, message)
         text_parts = []
         user_ids = []
         for part in parts:
-            if part.startswith("[@:") and part.endswith("]"):
+            if part.startswith("[@") and part.endswith("]"):
                 # 提取 user_id
-                user_id = part[3:-1]  # 去掉 <at: 和 >
+                user_id = part[2:-1]  # 去掉 <at: 和 >
                 user_ids.append(user_id)
             else:
                 text_parts.append(part)
@@ -176,7 +176,7 @@ class AtPlugin(BasePlugin):
     config_schema: dict = {
         "plugin": {
             "name": ConfigField(type=str, default="at_plugin", description="插件名称"),
-            "version": ConfigField(type=str, default="1.0.0", description="插件版本"),
+            "version": ConfigField(type=str, default="1.0.1", description="插件版本"),
             "config_version": ConfigField(type=str, default="1.0.0", description="配置文件版本"),
             "enabled": ConfigField(type=bool, default=True, description="是否启用插件"),
         }
