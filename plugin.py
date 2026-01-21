@@ -126,7 +126,10 @@ class PostAtHandler(BaseEventHandler):
             index += 1
             text = texts[index]
             if text:
-                message_seg.append(Seg(type="text", data=" " + text))
+                if text.startswith(" "):
+                    message_seg.append(Seg(type="text", data=text))
+                else:
+                    message_seg.append(Seg(type="text", data=" " + text))
         for i in message.message_segments:
             if i.type == "text":
                 continue
