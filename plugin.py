@@ -57,11 +57,11 @@ class LLMAtHandler(BaseEventHandler):
             already_add.append(user_id)
 
         at_prompt = """
-你可以使用[@id]的形式在消息中插入at
+你可以使用[@数字id]的形式在消息中插入at
 例如：
 [@12132323]
-直接输出标签，不要使用 Markdown 链接或 @昵称
-以下是昵称和id的映射表:\n"""
+直接输出标签，不要带有其他修饰
+以下是昵称和数字id的映射表:\n"""
         for i in user_id_map:
             at_prompt += f"{i[0]}:{i[1]}\n"
         at_prompt += "\n你*可以*在提及某个人时使用at来强调\n"
