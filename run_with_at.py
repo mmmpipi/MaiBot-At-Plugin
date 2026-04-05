@@ -111,13 +111,11 @@ def _inject_at_prompt(prompt: str, stream_id: Optional[str]) -> str:
     )
 
     if not user_id_map:
-        logger.debug(f"[at_injector] 未找到历史用户，跳过注入 (stream_id={stream_id})")
+        logger.debug(f"未找到历史用户，跳过注入 (stream_id={stream_id})")
         return prompt
 
     at_prompt = _build_at_prompt(user_id_map)
-    logger.info(
-        f"[at_injector] 注入历史 {len(user_id_map)} 条消息的id (stream_id={stream_id})"
-    )
+    logger.info(f"注入历史 {len(user_id_map)} 条消息的id (stream_id={stream_id})")
     return at_prompt + prompt
 
 
@@ -134,14 +132,12 @@ def _inject_at_prompt_multimodal(messages, stream_id: Optional[str]) -> list:
     )
 
     if not user_id_map:
-        logger.debug(
-            f"[at_injector] 多模态：未找到历史用户，跳过注入 (stream_id={stream_id})"
-        )
+        logger.debug(f"多模态：未找到历史用户，跳过注入 (stream_id={stream_id})")
         return messages
 
     at_prompt = _build_at_prompt(user_id_map)
     logger.info(
-        f"[at_injector] 多模态：注入历史 {len(user_id_map)} 条消息的id (stream_id={stream_id})"
+        f"多模态：注入历史 {len(user_id_map)} 条消息的id (stream_id={stream_id})"
     )
 
     if messages and hasattr(messages[0], "parts"):
@@ -200,7 +196,7 @@ def _process_at_components_new_chain(message_obj) -> Any:
             return message_obj
 
         if len(texts) - len(ats) != 1:
-            logger.warning("[at_injector] 新链：字段数量不符，跳过处理")
+            logger.warning("新链：字段数量不符，跳过处理")
             return message_obj
 
         new_components = []
@@ -233,10 +229,10 @@ def _process_at_components_new_chain(message_obj) -> Any:
                 new_components
             )
 
-        logger.info(f"[at_injector] 新链：转换了 {len(ats)} 个 at 标记")
+        logger.info(f"新链：转换了 {len(ats)} 个 at 标记")
 
     except Exception as e:
-        logger.error(f"[at_injector] 新链处理 at 组件失败: {e}", exc_info=True)
+        logger.error(f"新链处理 at 组件失败: {e}", exc_info=True)
 
     return message_obj
 
@@ -295,7 +291,7 @@ def _process_at_segments_old_chain(message_obj) -> Any:
             return message_obj
 
         if len(texts) - len(ats) != 1:
-            logger.warning("[at_injector] 旧链：字段数量不符，跳过处理")
+            logger.warning("旧链：字段数量不符，跳过处理")
             return message_obj
 
         from maim_message import Seg
@@ -324,10 +320,10 @@ def _process_at_segments_old_chain(message_obj) -> Any:
             message_seg.append(seg)
 
         message_obj.message_segment = Seg(type="seglist", data=message_seg)
-        logger.info(f"[at_injector] 旧链：转换了 {len(ats)} 个 at 标记")
+        logger.info(f"旧链：转换了 {len(ats)} 个 at 标记")
 
     except Exception as e:
-        logger.error(f"[at_injector] 旧链处理 at 消息段失败: {e}", exc_info=True)
+        logger.error(f"旧链处理 at 消息段失败: {e}", exc_info=True)
 
     return message_obj
 
@@ -346,18 +342,16 @@ def _install_at_injector() -> None:
             bot_uid = global_config.bot.user_id
             if bot_uid:
                 BOT_USER_ID = str(bot_uid)
-                logger.info(f"[at_injector] 从配置读取 bot_user_id: {BOT_USER_ID}")
+                logger.info(f"从配置读取 bot_user_id: {BOT_USER_ID}")
         if hasattr(global_config, "chat") and hasattr(
             global_config.chat, "max_context_size"
         ):
             ctx_size = global_config.chat.max_context_size
             if ctx_size:
                 MAX_CONTEXT_SIZE = int(ctx_size)
-                logger.info(
-                    f"[at_injector] 从配置读取 max_context_size: {MAX_CONTEXT_SIZE}"
-                )
+                logger.info(f"从配置读取 max_context_size: {MAX_CONTEXT_SIZE}")
     except Exception as e:
-        logger.warning(f"[at_injector] 无法从配置读取参数，使用默认值: {e}")
+        logger.warning(f"无法从配置读取参数，使用默认值: {e}")
 
     # ─── 注入点 1: 非多模态 Maisaka ────────────────────────────
     try:
@@ -375,11 +369,11 @@ def _install_at_injector() -> None:
             NonMultiGenerator.generate_reply_with_context,
             "generation_result = await self.express_model.generate_response(prompt)",
         )
-        logger.info("[at_injector] 注入点 1 已注册: 非多模态 Maisaka LLM 调用前")
+        logger.info("注入点 1 已注册: 非多模态 Maisaka LLM 调用前")
     except ImportError as e:
-        logger.error(f"[at_injector] 无法注册注入点 1（非多模态）: {e}")
+        logger.error(f"无法注册注入点 1（非多模态）: {e}")
     except Exception as e:
-        logger.error(f"[at_injector] 注入点 1 注册失败: {e}", exc_info=True)
+        logger.error(f"注入点 1 注册失败: {e}", exc_info=True)
 
     # ─── 注入点 2: 多模态 Maisaka ──────────────────────────────
     try:
@@ -395,11 +389,11 @@ def _install_at_injector() -> None:
             MultiGenerator.generate_reply_with_context,
             "generation_result = await self.express_model.generate_response_with_messages(",
         )
-        logger.info("[at_injector] 注入点 2 已注册: 多模态 Maisaka LLM 调用前")
+        logger.info("注入点 2 已注册: 多模态 Maisaka LLM 调用前")
     except ImportError as e:
-        logger.error(f"[at_injector] 无法注册注入点 2（多模态）: {e}")
+        logger.error(f"无法注册注入点 2（多模态）: {e}")
     except Exception as e:
-        logger.error(f"[at_injector] 注入点 2 注册失败: {e}", exc_info=True)
+        logger.error(f"注入点 2 注册失败: {e}", exc_info=True)
 
     # ─── 注入点 3: 新链 send_service ───────────────────────────
     try:
@@ -413,11 +407,11 @@ def _install_at_injector() -> None:
             send_service.send_session_message,
             "if not message.message_id:",
         )
-        logger.info("[at_injector] 注入点 3 已注册: 新链 send_session_message 入口")
+        logger.info("注入点 3 已注册: 新链 send_session_message 入口")
     except ImportError as e:
-        logger.error(f"[at_injector] 无法注册注入点 3（新链）: {e}")
+        logger.error(f"无法注册注入点 3（新链）: {e}")
     except Exception as e:
-        logger.error(f"[at_injector] 注入点 3 注册失败: {e}", exc_info=True)
+        logger.error(f"注入点 3 注册失败: {e}", exc_info=True)
 
     # ─── 注入点 4: 旧链 uni_message_sender ─────────────────────
     try:
@@ -431,11 +425,11 @@ def _install_at_injector() -> None:
             UniversalMessageSender.send_message,
             "await message.process()",
         )
-        logger.info("[at_injector] 注入点 4 已注册: 旧链 message.process() 前")
+        logger.info("注入点 4 已注册: 旧链 message.process() 前")
     except ImportError as e:
-        logger.error(f"[at_injector] 无法注册注入点 4（旧链）: {e}")
+        logger.error(f"无法注册注入点 4（旧链）: {e}")
     except Exception as e:
-        logger.error(f"[at_injector] 注入点 4 注册失败: {e}", exc_info=True)
+        logger.error(f"注入点 4 注册失败: {e}", exc_info=True)
 
 
 def _uninstall_at_injector() -> None:
@@ -443,7 +437,7 @@ def _uninstall_at_injector() -> None:
     from dowhen import clear_all
 
     clear_all()
-    logger.info("[at_injector] 所有插桩已清除")
+    logger.info("所有插桩已清除")
 
 
 # ─── 入口 ──────────────────────────────────────────────────────
