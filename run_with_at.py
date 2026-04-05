@@ -19,9 +19,9 @@ from dowhen import do, when
 
 # ─── 路径配置 ──────────────────────────────────────────────────────
 
-mai_bot_src = Path(__file__).resolve().parent / "MaiBot" / "src"
-if str(mai_bot_src) not in sys.path:
-    sys.path.insert(0, str(mai_bot_src))
+mai_bot_root = Path(__file__).resolve().parent / "MaiBot"
+if str(mai_bot_root) not in sys.path:
+    sys.path.insert(0, str(mai_bot_root))
 
 logger = logging.getLogger("at_injector")
 
@@ -452,7 +452,7 @@ def _uninstall_at_injector() -> None:
 def main():
     _install_at_injector()
 
-    from main import main as mai_bot_main
+    from src.main import main as mai_bot_main
 
     asyncio.run(mai_bot_main())
 
