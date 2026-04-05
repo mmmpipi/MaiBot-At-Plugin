@@ -2,14 +2,11 @@
 
 让你的麦麦at你那个喜欢睡觉的群u起床！
 
-## 配置说明
+## 注意！
 
-### 插件信息 `[plugin]`
+此分支是因为1.0.0暂时没有event的妥协之计，在官方完善了插件系统后请迁移到正常插件
+目前此插件会有webui无法访问的问题
 
-- `enabled`：是否启用插件（默认 true）
-- `version`：插件版本
+## 使用方法
 
-## 项目信息
-
-- 许可证：GPL-v3.0-or-later
-- 主页/仓库：https://github.com/MaiM-with-u/maibot
+将run_with_at.py复制到麦麦目录下，为麦麦的运行环境安装dowhen库，然后在启动麦麦时使用uv run run_with_at.py
