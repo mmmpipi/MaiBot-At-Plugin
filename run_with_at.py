@@ -452,9 +452,10 @@ def _uninstall_at_injector() -> None:
 def main():
     _install_at_injector()
 
-    from src.main import main as mai_bot_main
+    bot_py = Path(__file__).resolve().parent / "bot.py"
+    import runpy
 
-    asyncio.run(mai_bot_main())
+    runpy.run_path(str(bot_py), run_name="__main__")
 
 
 if __name__ == "__main__":
