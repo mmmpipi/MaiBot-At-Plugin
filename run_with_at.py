@@ -7,7 +7,7 @@
     python run_with_at.py
 """
 
-import asyncio
+import os
 import logging
 import re
 import sys
@@ -445,6 +445,8 @@ def _uninstall_at_injector() -> None:
 
 def main():
     _install_at_injector()
+
+    os.environ["MAIBOT_WORKER_PROCESS"] = "1"
 
     bot_py = Path(__file__).resolve().parent / "bot.py"
     import runpy
