@@ -367,7 +367,7 @@ def _install_at_injector() -> None:
 
         do(_before_llm_non_multi).when(
             NonMultiGenerator.generate_reply_with_context,
-            "generation_result = await self.express_model.generate_response(prompt)",
+            "generation_result = await self.express_model.generate_response_with_messages(",
         )
         logger.info("注入点 1 已注册: 非多模态 Maisaka LLM 调用前")
     except ImportError as e:
